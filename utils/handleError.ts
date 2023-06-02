@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { IMongoError } from "../interfaces/mongoerror.interface";
+import { IMongoError } from "../interfaces/mongoerror";
 
 export const handleAPIError = function (error: IMongoError, res: Response) {
   // process error from mongodb schema validation
