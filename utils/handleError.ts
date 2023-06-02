@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { IMongoError } from "../interfaces/mongoerror";
+import { IMongoError } from "../interfaces/mongoError";
 
 export const handleAPIError = function (error: IMongoError, res: Response) {
   // process error from mongodb schema validation
@@ -39,6 +39,17 @@ export const handleAPIError = function (error: IMongoError, res: Response) {
 
     res.status(400).json({ message: `${duplicateField} already exists` });
     return;
+  }
+
+  // this particular error won't happen in production as mongoDB will be deployed using a replica set
+  if (
+    error.toString() ===
+    "MongoServerError: Transaction numbers are only allowed on a replica set member or mongos"
+  ) {
+    console.log(
+      "\x1b[31m%s\x1b[0m",
+      "Attention Please!!! the last request failed because you are running this application with a standalone mongoDB deployment, please switch to a replica set"
+    );
   }
 
   res.status(500).json({ message: "Internal Server Error" });

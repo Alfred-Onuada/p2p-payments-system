@@ -9,7 +9,7 @@ const tokenSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: new Date(),
-      expires: "7d",
+      expires: "7d", // this creates a ttl (Time To Live) on this field
     },
   },
   { timestamps: true }

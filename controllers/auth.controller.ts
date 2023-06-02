@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import userModel from '../models/users.model';
 import { handleAPIError } from '../utils/handleError';
 import mongoose from 'mongoose';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import tokenModel from '../models/token.model';
 import isEmail from 'validator/lib/isEmail';
 import { compareSync } from 'bcrypt';
@@ -121,5 +121,86 @@ export const logout = async function (req: Request, res: Response) {
   } catch (error) {
     // ignore JWT error messages
     res.status(400).json({ message: "Invalid request" });
+  }
+}
+
+export const rotateTokens = async function (req: Request, res: Response) {
+  try {
+    if (req.headers.authorization === "undefined") {
+      res.status(401).json({ message: "Access Denied" });
+      return;
+    }
+
+    const token: string = req.headers.authorization.split(" ")[1];
+
+    // confirm token status
+    const tokenInfo: any = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+
+    // check if token has not already been used
+    const tokenFromDB = await tokenModel.findOne({ _id: tokenInfo.tokenId });
+
+    if (tokenFromDB === null) {
+      res.status(401).json({ message: "This refresh token is no longer valid" })
+      return;
+    }
+
+    // run multiple writes as a transaction
+    const session = await mongoose.startSession({
+      defaultTransactionOptions: {
+        readPreference: "primary",
+        readConcern: { level: "local" },
+        writeConcern: { w: "majority" },
+      }
+    })
+
+    let tokens = null;
+    await session.withTransaction(async function () {
+      try {
+        // invalidate previous refresh tokens
+        await tokenModel.deleteOne(
+          { _id: new mongoose.Types.ObjectId(tokenInfo.tokenId) },
+          { session }
+        );
+        
+        const resp =  await tokenModel.create(
+          [
+            { userId: tokenInfo.userId }
+          ],
+          { session }
+        )
+
+        // not reusing the create token above function as that doesn't run as a transaction
+        const accessToken = jwt.sign(
+          { userId: tokenInfo.userId },
+          process.env.ACCESS_TOKEN_SECRET,
+          {
+            expiresIn: '15m'
+          }
+        )
+    
+        const refreshToken = jwt.sign(
+          { 
+            userId: tokenInfo.userId,
+            tokenId: resp[0]._id
+          },
+          process.env.REFRESH_TOKEN_SECRET,
+          {
+            expiresIn: '7d'
+          }
+        )
+
+        tokens = { accessToken, refreshToken };
+      } catch (error) {
+        await session.abortTransaction();
+
+        throw error;
+      } finally {
+        await session.commitTransaction();
+      }
+    })
+
+    res.status(200).json({ message: "Rotation successful", data: tokens });
+  } catch (error) {
+    handleAPIError(error, res);
   }
 }
