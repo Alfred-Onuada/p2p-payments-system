@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { isLoggedIn } from "../middlewares/auth.middleware";
-import { verifyTopup } from "../controllers/wallet.controller";
+import { verifyTopup, transferFunds } from "../controllers/wallet.controller";
 
 const router = Router();
 
@@ -11,6 +11,6 @@ router.get('/history');
 
 router.post('/verify/:ref', verifyTopup);
 
-router.post('/transfer');
+router.post('/transfer', transferFunds);
 
 export default router;
