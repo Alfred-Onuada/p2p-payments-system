@@ -24,9 +24,11 @@
   },
   "homepage": "https://github.com/Alfred-Onuada/p2p-payments-system#readme",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.2",
     "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/validator": "^13.7.17",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.1.3"

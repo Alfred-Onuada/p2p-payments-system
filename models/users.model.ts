@@ -1,33 +1,34 @@
 import mongoose from "mongoose";
-import isEmail from 'validator/es/lib/isEmail'
+import isEmail from 'validator/lib/isEmail'
+import { hashSync } from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    require: [true, "Please enter your first name"],
+    required: [true, "Please enter your first name"],
     lowercase: true
   },
   lastName: {
     type: String,
-    require: [true, "Please enter your last name"],
+    required: [true, "Please enter your last name"],
     lowercase: true
   },
   username: {
     type: String,
-    require: [true, "Please choose a username"],
+    required: [true, "Please choose a username"],
     lowercase: true,
     unique: true
   },
   email: {
     type: String,
-    require: [true, "Please enter your email address"],
+    required: [true, "Please enter your email address"],
     lowercase: true,
     unique: true,
     validator: [isEmail, "Please enter a valid email address"]
   },
   password: {
     type: String,
-    require: [true, "Please enter a password"],
+    required: [true, "Please enter a password"],
     minLength: [8, "Password must be at least 8 characters long"],
     maxLength: [32, "Password can not be longer than 32 characters"]
   },
@@ -37,6 +38,13 @@ const userSchema = new mongoose.Schema({
     default: 0
   }
 }, { timestamps: true });
+
+userSchema.pre('save', function (next) {
+  // Hash password before saving
+  this.password = hashSync(this.password, 10);
+
+  next();
+})
 
 const userModel = mongoose.model('user', userSchema);
 
