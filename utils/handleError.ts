@@ -52,5 +52,11 @@ export const handleAPIError = function (error: IMongoError, res: Response) {
     );
   }
 
+  // process errors from interacting with paystack
+  if (error.name === "PaystackError") {
+    res.status(400).json({ message: error.message });
+    return;
+  }
+
   res.status(500).json({ message: "Internal Server Error" });
 };

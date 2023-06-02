@@ -23,6 +23,9 @@
     "url": "https://github.com/Alfred-Onuada/p2p-payments-system/issues"
   },
   "homepage": "https://github.com/Alfred-Onuada/p2p-payments-system#readme",
+  "engines": {
+    "node": "18.14.0"
+  },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/compression": "^1.7.2",

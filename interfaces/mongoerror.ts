@@ -8,5 +8,6 @@ export interface IMongoError {
   name: String,
   code: Number,
   errors: IValidationErrors[],
-  keyPattern: Object
+  keyPattern: Object,
+  message: String
 }

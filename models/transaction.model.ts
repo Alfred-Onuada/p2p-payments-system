@@ -7,7 +7,6 @@ const transactionSchema = new mongoose.Schema({
   },
   receiver: {
     type: mongoose.Types.ObjectId,
-    required: [true, "Please specify a 'receiver' for this transaction"]
   },
   amount: {
     type: Number,
@@ -23,6 +22,11 @@ const transactionSchema = new mongoose.Schema({
     type: String,
     enum: ["pending", "success", "failed"],
     default: "pending",
+  },
+  transactionType: {
+    type: String,
+    enum: ['topup', 'transfer'],
+    required: [true, "Please specify a transaction type"]
   },
   note: {
     type: String
