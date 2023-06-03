@@ -7,12 +7,9 @@ import tokenModel from '../models/token.model';
 import isEmail from 'validator/lib/isEmail';
 import { compareSync } from 'bcrypt';
 
-const createAPITokens = function (userId: mongoose.Types.ObjectId) {
+const createAPITokens = function (userId: mongoose.Types.ObjectId, tokenId: mongoose.Types.ObjectId) {
   return new Promise(async (resolve, reject) => {
     try {
-      // this will be used to invalidate refresh tokens
-      const { _id: tokenId } = await tokenModel.create({ userId });
-
       const accessToken = jwt.sign(
         { userId },
         process.env.ACCESS_TOKEN_SECRET,
@@ -54,7 +51,10 @@ export const register = async function (req: Request, res: Response) {
 
     const { _id: userId } = await userModel.create(userInfo);
 
-    const tokens = await createAPITokens(userId)
+    // this will be used to invalidate refresh tokens
+    const { _id: tokenId } = await tokenModel.create({ userId });
+
+    const tokens = await createAPITokens(userId, tokenId)
 
     res.status(201).json({ message: "Registration successful", data: tokens });
   } catch (error) {
@@ -93,7 +93,10 @@ export const login = async function (req: Request, res: Response) {
       return;
     }
 
-    const tokens = await createAPITokens(userInfo._id);
+    // this will be used to invalidate refresh tokens
+    const { _id: tokenId } = await tokenModel.create({ userId: userInfo._id });
+
+    const tokens = await createAPITokens(userInfo._id, tokenId);
 
     res.status(200).json({ message: "Login successful", data: tokens });
   } catch (error) {
@@ -169,27 +172,7 @@ export const rotateTokens = async function (req: Request, res: Response) {
           { session }
         )
 
-        // not reusing the create token above function as that doesn't run as a transaction
-        const accessToken = jwt.sign(
-          { userId: tokenInfo.userId },
-          process.env.ACCESS_TOKEN_SECRET,
-          {
-            expiresIn: '15m'
-          }
-        )
-    
-        const refreshToken = jwt.sign(
-          { 
-            userId: tokenInfo.userId,
-            tokenId: resp[0]._id
-          },
-          process.env.REFRESH_TOKEN_SECRET,
-          {
-            expiresIn: '7d'
-          }
-        )
-
-        tokens = { accessToken, refreshToken };
+        tokens = await createAPITokens(tokenInfo.userId, resp[0]._id);
       } catch (error) {
         await session.abortTransaction();
 
