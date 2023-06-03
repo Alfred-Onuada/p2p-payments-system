@@ -43,6 +43,8 @@ userSchema.pre('save', function (next) {
   // Hash password before saving
   this.password = hashSync(this.password, 10);
 
+  this.username = '@' + this.username;
+
   next();
 })
 

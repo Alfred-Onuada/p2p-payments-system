@@ -98,7 +98,10 @@ export const verifyTopup = async function (req: IExtendedRequest, res: Response)
       }
     });
 
-    res.status(200).json({ message: "Topup verified and saved" });
+    // to return new balance to frontend
+    const userInfo = await userModel.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+
+    res.status(200).json({ message: "Topup verified and saved", data: userInfo.walletBalance });
   } catch (error) {
     handleAPIError(error, res);
   }
