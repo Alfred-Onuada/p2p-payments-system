@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const tokenSchema = new mongoose.Schema(
   {
     userId: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       required: [true, "The user id must be specified"],
     },
     createdAt: {

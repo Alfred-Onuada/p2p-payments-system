@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema({
   sender: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: [true, "Please specify a 'sender' for this transaction"]
   },
   receiver: {
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
   },
   amount: {
     type: Number,
