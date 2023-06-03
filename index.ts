@@ -25,7 +25,7 @@ const startApp = async function () {
 
     app.use('/api', apiRoutes);
 
-    // to handle 404 API calls
+    // to handle undefined routes
     app.all("*", (req, res) => {
       res.status(404).json({ message: "Route not found" });
     });

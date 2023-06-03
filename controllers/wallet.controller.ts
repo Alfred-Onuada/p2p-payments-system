@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { IExtendedRequest } from "../interfaces/extendedRequest";
 import { handleAPIError } from "../utils/handleError";
-import mongoose, { isValidObjectId, mongo } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import transactionModel from "../models/transaction.model";
 import userModel from "../models/users.model";
 import { v4 as uuidv4 } from 'uuid';
