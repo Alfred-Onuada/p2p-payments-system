@@ -203,7 +203,9 @@ export const transferFunds = async function (req: IExtendedRequest, res: Respons
       }
     });
 
-    res.status(200).json({ message: "Transfer successful", data: ref });
+    const { walletBalance } = await userModel.findOne({ _id: new mongoose.Types.ObjectId(userId) });
+
+    res.status(200).json({ message: "Transfer successful", data: { ref, walletBalance } });
   } catch (error) {
     handleAPIError(error, res);
   }
