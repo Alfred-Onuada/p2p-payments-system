@@ -1,8 +1,12 @@
-import { Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { IExtendedRequest } from '../interfaces/extendedRequest';
+import { Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { IExtendedRequest } from "../interfaces/extendedRequest";
 
-export const isLoggedIn = function (req: IExtendedRequest, res: Response, next: NextFunction) {
+export const isLoggedIn = function (
+  req: IExtendedRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
     if (req.headers.authorization === "undefined") {
       res.status(401).json({ message: "Access Denied" });
@@ -21,4 +25,4 @@ export const isLoggedIn = function (req: IExtendedRequest, res: Response, next: 
   } catch (error) {
     res.status(401).json({ message: "Access Denied" });
   }
-} 
+};

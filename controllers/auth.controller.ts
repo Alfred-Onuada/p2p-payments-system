@@ -1,51 +1,54 @@
-import { Request, Response } from 'express';
-import userModel from '../models/users.model';
-import { handleAPIError } from '../utils/handleError';
-import mongoose from 'mongoose';
-import jwt from 'jsonwebtoken';
-import tokenModel from '../models/token.model';
-import isEmail from 'validator/lib/isEmail';
-import { compareSync } from 'bcrypt';
+import { Request, Response } from "express";
+import userModel from "../models/users.model";
+import { handleAPIError } from "../utils/handleError";
+import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import tokenModel from "../models/token.model";
+import isEmail from "validator/lib/isEmail";
+import { compareSync } from "bcrypt";
 
-const createAPITokens = function (userId: mongoose.Types.ObjectId, tokenId: mongoose.Types.ObjectId) {
+const createAPITokens = function (
+  userId: mongoose.Types.ObjectId,
+  tokenId: mongoose.Types.ObjectId
+) {
   return new Promise(async (resolve, reject) => {
     try {
       const accessToken = jwt.sign(
         { userId },
         process.env.ACCESS_TOKEN_SECRET,
         {
-          expiresIn: '15m'
+          expiresIn: "15m",
         }
-      )
-  
+      );
+
       const refreshToken = jwt.sign(
-        { 
+        {
           userId,
-          tokenId
+          tokenId,
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
-          expiresIn: '7d'
+          expiresIn: "7d",
         }
-      )
-  
+      );
+
       resolve({ accessToken, refreshToken });
     } catch (error) {
       reject(error);
     }
-  })
-}
+  });
+};
 
 export const register = async function (req: Request, res: Response) {
   const userInfo = req.body;
 
   try {
-    if (typeof userInfo !== 'object' || Object.keys(userInfo).length === 0) {
-      res.status(400).json({ message: "Please fill all required fields" })
+    if (typeof userInfo !== "object" || Object.keys(userInfo).length === 0) {
+      res.status(400).json({ message: "Please fill all required fields" });
       return;
     }
 
-    if (userInfo.hasOwnProperty('walletBalance')) {
+    if (userInfo.hasOwnProperty("walletBalance")) {
       delete userInfo.walletBalance;
     }
 
@@ -54,13 +57,13 @@ export const register = async function (req: Request, res: Response) {
     // this will be used to invalidate refresh tokens
     const { _id: tokenId } = await tokenModel.create({ userId });
 
-    const tokens = await createAPITokens(userId, tokenId)
+    const tokens = await createAPITokens(userId, tokenId);
 
     res.status(201).json({ message: "Registration successful", data: tokens });
   } catch (error) {
     handleAPIError(error, res);
   }
-}
+};
 
 export const login = async function (req: Request, res: Response) {
   const { email, password } = req.body;
@@ -83,10 +86,7 @@ export const login = async function (req: Request, res: Response) {
       return;
     }
 
-    const hasCorrectPassword = compareSync(
-      password,
-      userInfo.password
-    );
+    const hasCorrectPassword = compareSync(password, userInfo.password);
 
     if (hasCorrectPassword == false) {
       res.status(400).json({ message: "Invalid credentials" });
@@ -102,7 +102,7 @@ export const login = async function (req: Request, res: Response) {
   } catch (error) {
     handleAPIError(error, res);
   }
-}
+};
 
 export const logout = async function (req: Request, res: Response) {
   try {
@@ -118,14 +118,16 @@ export const logout = async function (req: Request, res: Response) {
     const tokenInfo: any = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
     // remove the token, making it invalid for reuse
-    await tokenModel.deleteOne({ _id: new mongoose.Types.ObjectId(tokenInfo.tokenId) });
+    await tokenModel.deleteOne({
+      _id: new mongoose.Types.ObjectId(tokenInfo.tokenId),
+    });
 
     res.status(200).json({ message: "Success" });
   } catch (error) {
     // ignore JWT error messages
     res.status(400).json({ message: "Invalid request" });
   }
-}
+};
 
 export const rotateTokens = async function (req: Request, res: Response) {
   try {
@@ -143,7 +145,9 @@ export const rotateTokens = async function (req: Request, res: Response) {
     const tokenFromDB = await tokenModel.findOne({ _id: tokenInfo.tokenId });
 
     if (tokenFromDB === null) {
-      res.status(401).json({ message: "This refresh token is no longer valid" })
+      res
+        .status(401)
+        .json({ message: "This refresh token is no longer valid" });
       return;
     }
 
@@ -153,8 +157,8 @@ export const rotateTokens = async function (req: Request, res: Response) {
         readPreference: "primary",
         readConcern: { level: "local" },
         writeConcern: { w: "majority" },
-      }
-    })
+      },
+    });
 
     let tokens = null;
     await session.withTransaction(async function () {
@@ -164,13 +168,10 @@ export const rotateTokens = async function (req: Request, res: Response) {
           { _id: new mongoose.Types.ObjectId(tokenInfo.tokenId) },
           { session }
         );
-        
-        const resp =  await tokenModel.create(
-          [
-            { userId: tokenInfo.userId }
-          ],
-          { session }
-        )
+
+        const resp = await tokenModel.create([{ userId: tokenInfo.userId }], {
+          session,
+        });
 
         tokens = await createAPITokens(tokenInfo.userId, resp[0]._id);
       } catch (error) {
@@ -180,10 +181,10 @@ export const rotateTokens = async function (req: Request, res: Response) {
       } finally {
         await session.commitTransaction();
       }
-    })
+    });
 
     res.status(200).json({ message: "Rotation successful", data: tokens });
   } catch (error) {
     handleAPIError(error, res);
   }
-}
+};

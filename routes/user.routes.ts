@@ -7,6 +7,6 @@ const router = Router();
 // requires authentication on all routes within this router
 router.use(isLoggedIn);
 
-router.get('/info', getProfileInfo);
+router.get("/info", getProfileInfo);
 
 export default router;

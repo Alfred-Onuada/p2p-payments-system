@@ -1,0 +1,6 @@
+*.md
+.env
+node_modules/*
+.prettierignore
+.gitignore
+dist/*

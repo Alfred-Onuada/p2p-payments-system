@@ -7,8 +7,8 @@ const router = Router();
 // requires authentication on all routes within this router
 router.use(isLoggedIn);
 
-router.post('/verify/:ref', verifyTopup);
+router.post("/verify/:ref", verifyTopup);
 
-router.post('/transfer', transferFunds);
+router.post("/transfer", transferFunds);
 
 export default router;
