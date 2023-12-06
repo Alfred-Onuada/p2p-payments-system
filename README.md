@@ -1,12 +1,12 @@
-# P2P Payments App
-This is a simple illustration of a p2p network for payments users are able to carry out 2 primary functions
+# P2P Payments App!
+This is a simple illustration of a P2P network for payment users are able to carry out 2 primary functions
 
 1. Add money to their account via Paystack
-2. Send money to friends using thier paytags
+2. Send money to friends using thier pay tags
 
-Before we get started with setup and the nitty gritty of the app the live demo is available 👉🏼 [here](https://p2p-frontend-amber.vercel.app/)
+Before we get started with setup and the nitty-gritty of the app the live demo is available 👉🏼 [here](https://p2p-frontend-amber.vercel.app/)
 
-This system was built using Node Js, TypeScript and MongoDB and is deployed on [Vercel](https://vercel.com) (frontend) and [Render](https://render.com) (backend)
+This system was built using Node Js, TypeScript, and MongoDB and is deployed on [Vercel](https://vercel.com) (frontend) and [Render](https://render.com) (backend)
 
 ## Prerequisites
 
@@ -32,16 +32,16 @@ You are now ready to start the server, run
 There are 3 major segments of the applications API
 
 1. The Authentication / Authorization controller - to handle functions such as login / register / logout / token rotation
-2. The user controller - to handle retrieval of user information
-3. The wallet controller - to handle wallet topup and transfer of funds to other users
+2. The user controller - to handle the retrieval of user information
+3. The wallet controller - to handle wallet top-up and transfer of funds to other users
 
 
--  ### **Lets get started with Auth**
+-  ### **Let's get started with Auth**
 
 	**Registration**
 	> POST - https://p2p-api.onrender.com/api/auth/register
 
-	This route expects a payload of the fomat 
+	This route expects a payload of the format 
 
 	```json
 	{
@@ -53,7 +53,7 @@ There are 3 major segments of the applications API
 	}
 	```
 
-	and will return a response of format
+	and will return a response in the format
 
 	```json
 	{
